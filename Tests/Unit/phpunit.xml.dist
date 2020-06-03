@@ -18,10 +18,4 @@
             <directory suffix=".php">inc</directory>
         </testsuite>
     </testsuites>
-
-	<filter>
-		<whitelist addUncoveredFilesFromWhitelist="true">
-			<directory suffix=".php">../../inc</directory>
-		</whitelist>
-	</filter>
 </phpunit>

@@ -1,7 +1,7 @@
 {
-	"name": "wp-media/package-template",
-	"description": "Repository template for our packages",
-	"homepage": "https://github.com/wp-media/package-template",
+	"name": "wp-media/module-filesystem",
+	"description": "Filesystem module for WordPress-powered sites.",
+	"homepage": "https://github.com/wp-media/module-filesystem",
 	"license": "GPL-2.0+",
 	"authors": [
 		{
@@ -15,8 +15,12 @@
 		"sort-packages": true
 	},
 	"support": {
-		"issues": "https://github.com/wp-media/package-template/issues",
-		"source": "https://github.com/wp-media/package-template"
+		"issues": "https://github.com/wp-media/module-filesystem/issues",
+		"source": "https://github.com/wp-media/module-filesystem"
+	},
+	"require": {
+		"php": ">=5.6.0",
+		"monolog/monolog": "^1.0"
 	},
 	"require-dev": {
 		"php": "^5.6 || ^7",
@@ -25,23 +29,26 @@
 		"phpcompatibility/phpcompatibility-wp": "^2.0",
 		"phpunit/phpunit": "^5.7 || ^7",
 		"wp-coding-standards/wpcs": "^2",
+		"wp-media/phpunit": "dev-master",
 		"wp-media/phpunit-wp-rocket": "dev-master"
 	},
 	"autoload": {
-	  "classmap": [
-		"inc/classes"
-	  ],
 	  "psr-4": { "WP_Rocket\\": "inc/" }
 	},
 	"autoload-dev": {
+		"classmap": [
+			"Tests/Fixtures/polyfills"
+		],
 	  "psr-4": { "WP_Rocket\\Tests\\": "Tests/"	}
 	},
 	"scripts": {
-		"test-unit": "\"vendor/bin/wpmedia-phpunit\" unit path=Tests/Unit",
-		"test-integration": "\"vendor/bin/wpmedia-phpunit\" integration path=Tests/Integration/",
+		"test-unit": "\"vendor/bin/phpunit\" --testsuite unit --colors=always --configuration Tests/Unit/phpunit.xml.dist",
+		"test-integration": "\"vendor/bin/phpunit\" --testsuite integration --colors=always --configuration Tests/Integration/phpunit.xml.dist --exclude-group AdminOnly",
+		"test-integration-adminonly": "\"vendor/bin/phpunit\" --testsuite integration --colors=always --configuration Tests/Integration/phpunit.xml.dist --group AdminOnly",
 		"run-tests": [
 			"@test-unit",
-			"@test-integration"
+			"@test-integration",
+			"@test-integration-adminonly"
 		],
 		"install-codestandards": "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run",
 		"phpcs": "phpcs --basepath=.",
