@@ -25,10 +25,17 @@
 		"phpcompatibility/phpcompatibility-wp": "^2.0",
 		"phpunit/phpunit": "^5.7 || ^7",
 		"wp-coding-standards/wpcs": "^2",
-		"wp-media/phpunit": "dev-master"
+		"wp-media/phpunit": "^1"
 	},
-	"autoload": {},
-	"autoload-dev": {},
+	"autoload": {
+	  "classmap": [
+		"inc/classes"
+	  ],
+	  "psr-4": { "WP_Rocket\\": "inc/" }
+	},
+	"autoload-dev": {
+	  "psr-4": { "WP_Rocket\\Tests\\": "Tests/"	}
+	},
 	"scripts": {
 		"test-unit": "\"vendor/bin/wpmedia-phpunit\" unit path=Tests/Unit",
 		"test-integration": "\"vendor/bin/wpmedia-phpunit\" integration path=Tests/Integration/",
