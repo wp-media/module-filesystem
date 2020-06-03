@@ -16,7 +16,7 @@ class Test_RocketIsLiveSite extends TestCase {
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
 
-		require_once WP_ROCKET_PLUGIN_ROOT . 'inc/functions/api.php';
+		require_once FILESYSTEM_MODULE_ROOT . 'inc/functions/api.php';
 	}
 
 	public function testShouldReturnTrueWhenWPROCKETDEBUG() {

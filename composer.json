@@ -25,7 +25,7 @@
 		"phpcompatibility/phpcompatibility-wp": "^2.0",
 		"phpunit/phpunit": "^5.7 || ^7",
 		"wp-coding-standards/wpcs": "^2",
-		"wp-media/phpunit": "^1"
+		"wp-media/phpunit-wp-rocket": "dev-master"
 	},
 	"autoload": {
 	  "classmap": [

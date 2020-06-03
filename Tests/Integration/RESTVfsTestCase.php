@@ -15,7 +15,7 @@ abstract class RESTVfsTestCase extends BaseTestCase {
 	}
 
 	public function getPathToFixturesDir() {
-		return WP_ROCKET_TESTS_FIXTURES_DIR;
+		return FILESYSTEM_MODULE_TESTS_FIXTURES_DIR;
 	}
 
 	public function getDefaultVfs() {

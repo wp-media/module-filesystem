@@ -1,6 +1,6 @@
 <?php
 
-$i18n_plugins = require WP_ROCKET_TESTS_FIXTURES_DIR . '/i18n/pluginsData.php';
+$i18n_plugins = require FILESYSTEM_MODULE_TESTS_FIXTURES_DIR . '/i18n/pluginsData.php';
 
 return [
 	'false_ShouldReturnHomeUrl'                   => [

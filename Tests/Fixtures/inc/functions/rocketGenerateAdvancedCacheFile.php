@@ -1,6 +1,6 @@
 <?php
 
-$content = require WP_ROCKET_TESTS_FIXTURES_DIR . '/content/advancedCacheContent.php';
+$content = require FILESYSTEM_MODULE_TESTS_FIXTURES_DIR . '/content/advancedCacheContent.php';
 
 return [
 	'vfs_dir' => 'wp-content/',

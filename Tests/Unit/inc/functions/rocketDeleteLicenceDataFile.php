@@ -17,7 +17,7 @@ class Test_RocketDeleteLicenceDataFile extends FilesystemTestCase {
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
 
-		require_once WP_ROCKET_PLUGIN_ROOT . 'inc/functions/options.php';
+		require_once FILESYSTEM_MODULE_ROOT . 'inc/functions/options.php';
 	}
 
 	public function testShouldDeleteLicenceDataFileWhenExists() {

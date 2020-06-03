@@ -20,7 +20,7 @@ trait VirtualFilesystemTrait {
 			return;
 		}
 
-		$this->config['structure'] = require WP_ROCKET_TESTS_FIXTURES_DIR . '/vfs-structure/default.php';
+		$this->config['structure'] = require FILESYSTEM_MODULE_TESTS_FIXTURES_DIR . '/vfs-structure/default.php';
 	}
 
 	protected function redefineRocketDirectFilesystem() {
@@ -116,7 +116,7 @@ trait VirtualFilesystemTrait {
 	}
 
 	public function getPathToFixturesDir() {
-		return WP_ROCKET_TESTS_FIXTURES_DIR;
+		return FILESYSTEM_MODULE_TESTS_FIXTURES_DIR;
 	}
 
 	public function getDefaultVfs() {
