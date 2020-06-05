@@ -33,7 +33,8 @@
 		"wp-media/phpunit-wp-rocket": "dev-master"
 	},
 	"autoload": {
-	  "psr-4": { "WP_Rocket\\": "inc/" }
+	  "psr-4": { "WP_Rocket\\": "inc/" },
+	  "files": [ "inc/functions/files.php" ]
 	},
 	"autoload-dev": {
 		"classmap": [
