@@ -30,7 +30,7 @@
 		"phpunit/phpunit": "^5.7 || ^7",
 		"roave/security-advisories": "dev-master",
 		"wp-coding-standards/wpcs": "^2",
-		"wp-media/phpunit": "^1.0",
+		"wp-media/phpunit": "^1.1.6",
 		"wp-media/phpunit-wp-rocket": "^1.0"
 	},
 	"autoload-dev": {
