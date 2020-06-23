@@ -701,6 +701,8 @@ function rocket_clean_files( $urls, $filesystem = null ) {
  * @return void
  */
 function rocket_clean_home( $lang = '', $filesystem = null ) {
+	global $wp_rewrite;
+
 	$parse_url = get_rocket_parse_url( get_rocket_i18n_home_url( $lang ) );
 
 	/** This filter is documented in inc/front/htaccess.php */
@@ -709,6 +711,7 @@ function rocket_clean_home( $lang = '', $filesystem = null ) {
 	}
 
 	$cache_path = _rocket_get_wp_rocket_cache_path();
+
 	if ( empty( $filesystem ) ) {
 		$filesystem = rocket_direct_filesystem();
 	}
@@ -736,12 +739,12 @@ function rocket_clean_home( $lang = '', $filesystem = null ) {
 	do_action( 'before_rocket_clean_home', $root, $lang ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 
 	foreach ( _rocket_get_cache_dirs( $parse_url['host'], $cache_path ) as $dir ) {
-		global $wp_rewrite;
-
 		$domain_entry = $dir . $parse_url['path'];
+
 		if ( ! $filesystem->exists( $domain_entry ) ) {
 			continue;
 		}
+
 		try {
 			$iterator = new DirectoryIterator( $domain_entry );
 		} catch ( Exception $e ) {
@@ -760,6 +763,7 @@ function rocket_clean_home( $lang = '', $filesystem = null ) {
 
 		// Delete homepage pagination.
 		$pagination_dir = $domain_entry . DIRECTORY_SEPARATOR . $wp_rewrite->pagination_base;
+
 		if ( $filesystem->is_dir( $pagination_dir ) ) {
 			rocket_rrmdir( $pagination_dir, [], $filesystem );
 		}
