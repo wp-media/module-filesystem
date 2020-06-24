@@ -691,13 +691,14 @@ function rocket_clean_files( $urls, $filesystem = null ) {
 /**
  * Remove the home cache file and pagination
  *
- * $since 2.2 Add $lang argument
- *
+ * @since 3.6.1 Replace glob() with SPL.
+ * @since 2.2 Add $lang argument
  * @since 2.0 Delete cache files for all users
  * @since 1.0
  *
- * @param string                    $lang (default: '') The language code.
+ * @param string                    $lang       (default: '') The language code.
  * @param WP_Filesystem_Direct|null $filesystem Optional. Instance of filesystem handler.
+ *
  * @return void
  */
 function rocket_clean_home( $lang = '', $filesystem = null ) {
@@ -722,9 +723,10 @@ function rocket_clean_home( $lang = '', $filesystem = null ) {
 	 * Filter the homepage caching folder root
 	 *
 	 * @since 2.6.5
-	 * @param array     $root The root that will be returned.
-	 * @param string    $host The website host.
-	 * @param string    $path The website path.
+	 *
+	 * @param array  $root The root that will be returned.
+	 * @param string $host The website host.
+	 * @param string $path The website path.
 	 */
 	$root = apply_filters( 'rocket_clean_home_root', $root, $parse_url['host'], $parse_url['path'] );
 
