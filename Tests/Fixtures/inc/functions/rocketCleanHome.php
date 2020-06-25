@@ -8,18 +8,18 @@ return [
 				'wp-rocket' => [
 					'example.org'                => [
 						'index.html_gzip' => '',
-						'index.html' => '',
+						'index.html'      => '',
 						'index-test.html' => '',
-						'.mobile-active' => '',
-						'.no-webp' => '',
-						'page' => [
+						'.mobile-active'  => '',
+						'.no-webp'        => '',
+						'page'            => [
 							'1' => [
 								'index.html_gzip' => '',
-								'index.html' => '',
+								'index.html'      => '',
 							],
 							'2' => [
 								'index.html_gzip' => '',
-								'index.html' => '',
+								'index.html'      => '',
 							],
 						]
 					],
@@ -52,6 +52,7 @@ return [
 
 					'example.org#fr' => [
 						'index.html_gzip' => '',
+						'francais.html'   => ''
 					],
 				],
 			],
@@ -59,99 +60,73 @@ return [
 	],
 
 	'test_data' => [
-		'testShouldRemoveFilesForMainDomain' => [
-			'config' => [
+		'shouldRemoveMainDomainFilesWhenNoLangGiven'   => [
+			'i18n'     => [
+				'lang' => ''
+			],
+			'config'   => [
 				'home_url' => 'http://example.org',
 			],
 			'expected' => [
-				'removed_files' => [
-					'example.org/index.html_gzip',
-					'example.org/index.html',
-					'example.org/index-test.html',
-					'example.org/.mobile-active',
-					'example.org/.no-webp',
-					'example.org/page/1/index.html_gzip',
-					'example.org/page/1/index.html',
-					'example.org/page/2/index.html_gzip',
-					'example.org/page/2/index.html',
-					'example.org-wpmedia-123456/index.html_gzip',
-					'example.org-tester-987654/index.html_gzip',
+				'cleaned' => [
+					'vfs://public/wp-content/cache/wp-rocket/example.org/index.html_gzip'                => null,
+					'vfs://public/wp-content/cache/wp-rocket/example.org/index.html'                     => null,
+					'vfs://public/wp-content/cache/wp-rocket/example.org/index-test.html'                => null,
+					'vfs://public/wp-content/cache/wp-rocket/example.org/.mobile-active'                 => null,
+					'vfs://public/wp-content/cache/wp-rocket/example.org/.no-webp'                       => null,
+					'vfs://public/wp-content/cache/wp-rocket/example.org/page/1/index.html_gzip'         => null,
+					'vfs://public/wp-content/cache/wp-rocket/example.org/page/1/index.html'              => null,
+					'vfs://public/wp-content/cache/wp-rocket/example.org/page/2/index.html_gzip'         => null,
+					'vfs://public/wp-content/cache/wp-rocket/example.org/page/2/index.html'              => null,
+					'vfs://public/wp-content/cache/wp-rocket/example.org-wpmedia-123456/index.html_gzip' => null,
+					'vfs://public/wp-content/cache/wp-rocket/example.org-tester-987654/index.html_gzip'  => null,
 
-					'example.org#fr/index.html_gzip'
-				],
-				'not_removed_files' => [
-					'baz.example.org/index.html_gzip',
-					'baz.example.org-baz1-123456/index.html_gzip',
-					'baz.example.org-baz2-987654/index.html_gzip',
-					'baz.example.org-baz3-456789/index.html_gzip',
-
-					'wp.baz.example.org/index.html_gzip',
-					'wp.baz.example.org-wpbaz1-123456/index.html_gzip'
+					'vfs://public/wp-content/cache/wp-rocket/example.org#fr/index.html_gzip' => null,
 				],
 			]
 		],
-		'testShouldRemoveFilesForSubDomain' => [
-			'config' => [
+		'shouldRemoveSubDomainFilesWhenNoLangGiven'    => [
+			'i18n'     => [
+				'lang' => ''
+			],
+			'config'   => [
 				'home_url' => 'http://baz.example.org',
 			],
 			'expected' => [
-				'removed_files' => [
-					'baz.example.org/index.html_gzip',
-					'baz.example.org-baz1-123456/index.html_gzip',
-					'baz.example.org-baz2-987654/index.html_gzip',
-					'baz.example.org-baz3-456789/index.html_gzip'
+				'cleaned' => [
+					'vfs://public/wp-content/cache/wp-rocket/baz.example.org/index.html_gzip'             => null,
+					'vfs://public/wp-content/cache/wp-rocket/baz.example.org-baz1-123456/index.html_gzip' => null,
+					'vfs://public/wp-content/cache/wp-rocket/baz.example.org-baz2-987654/index.html_gzip' => null,
+					'vfs://public/wp-content/cache/wp-rocket/baz.example.org-baz3-456789/index.html_gzip' => null,
 				],
-				'not_removed_files' => [
-					'example.org/index.html_gzip',
-					'example.org/index.html',
-					'example.org/index-test.html',
-					'example.org/.mobile-active',
-					'example.org/.no-webp',
-					'example.org/page/1/index.html_gzip',
-					'example.org/page/1/index.html',
-					'example.org/page/2/index.html_gzip',
-					'example.org/page/2/index.html',
-					'example.org-wpmedia-123456/index.html_gzip',
-					'example.org-tester-987654/index.html_gzip',
-
-					'wp.baz.example.org/index.html_gzip',
-					'wp.baz.example.org-wpbaz1-123456/index.html_gzip',
-
-					'example.org#fr/index.html_gzip'
-				],
-			]
+			],
 		],
-		'testShouldRemoveFilesForSubSubDomain' => [
-			'config' => [
+		'shouldRemoveSubSubDomainFilesWhenNoLangGiven' => [
+			'i18n'     => [
+				'lang' => ''
+			],
+			'config'   => [
 				'home_url' => 'http://wp.baz.example.org',
 			],
 			'expected' => [
-				'removed_files' => [
-					'wp.baz.example.org/index.html_gzip',
-					'wp.baz.example.org-wpbaz1-123456/index.html_gzip'
+				'cleaned' => [
+					'vfs://public/wp-content/cache/wp-rocket/wp.baz.example.org/index.html_gzip'               => null,
+					'vfs://public/wp-content/cache/wp-rocket/wp.baz.example.org-wpbaz1-123456/index.html_gzip' => null,
 				],
-				'not_removed_files' => [
-					'example.org/index.html_gzip',
-					'example.org/index.html',
-					'example.org/index-test.html',
-					'example.org/.mobile-active',
-					'example.org/.no-webp',
-					'example.org/page/1/index.html_gzip',
-					'example.org/page/1/index.html',
-					'example.org/page/2/index.html_gzip',
-					'example.org/page/2/index.html',
-					'example.org-wpmedia-123456/index.html_gzip',
-					'example.org-tester-987654/index.html_gzip',
-
-					'baz.example.org/index.html_gzip',
-					'baz.example.org-baz1-123456/index.html_gzip',
-					'baz.example.org-baz2-987654/index.html_gzip',
-					'baz.example.org-baz3-456789/index.html_gzip',
-
-					'example.org#fr/index.html_gzip'
-				],
-			]
+			],
 		],
-
-	]
+		'shouldRemoveLangMainDomainFilesWhenLangGiven' => [
+			'i18n'     => [
+				'lang' => 'fr'
+			],
+			'config'   => [
+				'home_url' => 'http://example.org',
+			],
+			'expected' => [
+				'cleaned' => [
+					'vfs://public/wp-content/cache/wp-rocket/example.org#fr/index.html_gzip' => null,
+				],
+			],
+		],
+	],
 ];
