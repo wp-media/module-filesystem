@@ -11,22 +11,27 @@ use WP_Rocket\Tests\Integration\FilesystemTestCase;
  * @group vfs
  */
 class Test_RocketCleanHome extends FilesystemTestCase {
-	protected $path_to_test_data   = '/inc/functions/rocketCleanHome.php';
+	protected $path_to_test_data = '/inc/functions/rocketCleanHome.php';
 
 	/**
 	 * @dataProvider providerTestData
 	 */
-	public function testShouldCleanHome( $config, $expected ) {
-		Functions\when( 'home_url' )->justReturn( $config['home_url'] );
-		rocket_clean_home('', $this->filesystem);
+	public function testShouldCleanHome( $i18n, $home_url, $expected ) {
+		$this->generateEntriesShouldExistAfter( $expected['cleaned'] );
 
-		foreach ($expected['removed_files'] as $removed_file) {
-			$this->assertFalse( $this->filesystem->exists( $this->config['vfs_dir'].$removed_file ) );
-		}
+		Functions\when( 'home_url' )->justReturn( $home_url );
+		rocket_clean_home( $i18n, $this->filesystem );
 
-		foreach ($expected['not_removed_files'] as $not_removed_file) {
-			$this->assertTrue( $this->filesystem->exists( $this->config['vfs_dir'].$not_removed_file ) );
-		}
+		$this->checkEntriesDeleted( $expected['cleaned'] );
+		$this->checkShouldNotDeleteEntries();
+
+//		foreach ($expected['removed_files'] as $removed_file) {
+//			$this->assertFalse( $this->filesystem->exists( $this->config['vfs_dir'].$removed_file ) );
+//		}
+//
+//		foreach ($expected['not_removed_files'] as $not_removed_file) {
+//			$this->assertTrue( $this->filesystem->exists( $this->config['vfs_dir'].$not_removed_file ) );
+//		}
 	}
 
 }
