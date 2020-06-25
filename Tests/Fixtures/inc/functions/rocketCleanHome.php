@@ -64,9 +64,7 @@ return [
 			'i18n'     => [
 				'lang' => ''
 			],
-			'config'   => [
-				'home_url' => 'http://example.org',
-			],
+			'home_url' => 'http://example.org',
 			'expected' => [
 				'cleaned' => [
 					'vfs://public/wp-content/cache/wp-rocket/example.org/index.html_gzip'                => null,
@@ -89,9 +87,7 @@ return [
 			'i18n'     => [
 				'lang' => ''
 			],
-			'config'   => [
-				'home_url' => 'http://baz.example.org',
-			],
+			'home_url' => 'http://baz.example.org',
 			'expected' => [
 				'cleaned' => [
 					'vfs://public/wp-content/cache/wp-rocket/baz.example.org/index.html_gzip'             => null,
@@ -105,9 +101,7 @@ return [
 			'i18n'     => [
 				'lang' => ''
 			],
-			'config'   => [
-				'home_url' => 'http://wp.baz.example.org',
-			],
+			'home_url' => 'http://wp.baz.example.org',
 			'expected' => [
 				'cleaned' => [
 					'vfs://public/wp-content/cache/wp-rocket/wp.baz.example.org/index.html_gzip'               => null,
@@ -119,9 +113,7 @@ return [
 			'i18n'     => [
 				'lang' => 'fr'
 			],
-			'config'   => [
-				'home_url' => 'http://example.org',
-			],
+			'home_url' => 'http://example.org',
 			'expected' => [
 				'cleaned' => [
 					'vfs://public/wp-content/cache/wp-rocket/example.org#fr/index.html_gzip' => null,

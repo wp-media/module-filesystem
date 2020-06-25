@@ -25,17 +25,17 @@ class Test_RocketCleanHome extends FilesystemTestCase {
 	/**
 	 * @dataProvider providerTestData
 	 */
-	public function testShouldCleanHome( $i18n, $config, $expected ) {
+	public function testShouldCleanHome( $i18n, $home_url, $expected ) {
 		$GLOBALS['wp_rewrite']                  = new stdClass();
 		$GLOBALS['wp_rewrite']->pagination_base = 'page';
 
 		Functions\expect( 'get_rocket_i18n_home_url' )
 			->once()
 			->with( $i18n['lang'] )
-			->andReturn( $config['home_url'] );
+			->andReturn( $home_url );
 		Functions\expect( 'get_rocket_parse_url' )
 			->once()
-			->with( $config['home_url'] )
+			->with( $home_url )
 			->andReturnUsing(
 				function ( $url, $component = - 1 ) {
 					$url         = parse_url( $url, $component );
@@ -43,7 +43,7 @@ class Test_RocketCleanHome extends FilesystemTestCase {
 
 					return $url;
 				},
-				$config['home_url']
+				$home_url
 			);
 		Functions\expect( 'rocket_direct_filesystem' )->never();
 
@@ -56,7 +56,7 @@ class Test_RocketCleanHome extends FilesystemTestCase {
 		Actions\expectDone( 'before_rocket_clean_home' )->once();
 		Actions\expectDone( 'after_rocket_clean_home' )->once();
 
-		$this->generateEntriesShouldExistAfter( $expected );
+		$this->generateEntriesShouldExistAfter( $expected['cleaned'] );
 
 		rocket_clean_home( $i18n['lang'], $this->filesystem );
 
