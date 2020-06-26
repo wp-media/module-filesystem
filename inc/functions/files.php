@@ -109,7 +109,7 @@ function rocket_generate_advanced_cache_file() {
 }
 
 /**
- * Generates the configuration file for the current domain based on the values ​​of options
+ * Generates the configuration file for the current domain based on the values of options
  *
  * @since 2.0
  *
