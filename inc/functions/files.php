@@ -1,96 +1,30 @@
 <?php
 
 use WP_Rocket\Logger\Logger;
+use WP_Rocket\Engine\Cache\AdvancedCache;
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Generate the content of advanced-cache.php file.
+ * Creates the advanced-cache.php file.
  *
- * @since 3.5.5 Uses rocket_get_constant() for constants.
- * @since 2.1   Add filter rocket_advanced_cache_file.
- * @since 2.0.3
+ * @since 3.6 Uses AdvancedCache::get_advanced_cache_content().
+ * @since 2.0
  *
- * @return  string  $buffer The content of avanced-cache.php file
+ * @param AdvancedCache $advanced_cache Optional. Instance of the advanced cache handler.
  */
-function get_rocket_advanced_cache_file() { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
-	$buffer  = "<?php\n";
-	$buffer .= "defined( 'ABSPATH' ) || exit;\n\n";
-
-	// Add a constant to be sure this is our file.
-	$buffer .= "define( 'WP_ROCKET_ADVANCED_CACHE', true );\n\n";
-
-	$buffer .= "if ( ! defined( 'WP_ROCKET_CONFIG_PATH' ) ) {\n";
-	$buffer .= "\tdefine( 'WP_ROCKET_CONFIG_PATH',       WP_CONTENT_DIR . '/wp-rocket-config/' );\n";
-	$buffer .= "}\n\n";
-
-	// Include the Mobile Detect class if we have to create a different caching file for mobile.
-	if ( is_rocket_generate_caching_mobile_files() ) {
-		$vendor_path = rocket_get_constant( 'WP_ROCKET_VENDORS_PATH' );
-
-		$buffer .= "if ( file_exists( '" . $vendor_path . "classes/class-rocket-mobile-detect.php' ) && ! class_exists( 'Rocket_Mobile_Detect' ) ) {\n";
-		$buffer .= "\tinclude_once '" . $vendor_path . "classes/class-rocket-mobile-detect.php';\n";
-		$buffer .= "}\n\n";
-	}
-
-	// Register a class autoloader and include the process file.
-	$buffer .= "if ( version_compare( phpversion(), '" . rocket_get_constant( 'WP_ROCKET_PHP_VERSION' ) . "' ) >= 0 ) {\n\n";
-
-	// Class autoloader.
-	$autoloader = rocket_direct_filesystem()->get_contents( rocket_get_constant( 'WP_ROCKET_INC_PATH' ) . 'process-autoloader.php' );
-
-	if ( $autoloader ) {
-		$autoloader = preg_replace( '@^<\?php\s*@', '', $autoloader );
-		$autoloader = str_replace( [ "\n", "\n\t\n" ], [ "\n\t", "\n\n" ], trim( $autoloader ) );
-		$autoloader = str_replace( 'WP_ROCKET_PATH', "'" . rocket_get_constant( 'WP_ROCKET_PATH' ) . "'", $autoloader );
-
-		$buffer .= "\t$autoloader\n\n";
-	}
-
-	// Initialize the Cache class and process.
-	$buffer .= "\t" . 'if ( ! class_exists( \'\WP_Rocket\Buffer\Cache\' ) ) {
-		if ( ! defined( \'DONOTROCKETOPTIMIZE\' ) ) {
-			define( \'DONOTROCKETOPTIMIZE\', true ); // WPCS: prefix ok.
-		}
+function rocket_generate_advanced_cache_file( $advanced_cache = null ) {
+	/**
+	 * Filters whether to generate the advanced-cache.php file.
+	 *
+	 * @since 3.6.3
+	 *
+	 * @param bool True (default) to go ahead with advanced cache file generation; false to stop generation.
+	 */
+	if ( ! (bool) apply_filters( 'rocket_generate_advanced_cache_file', true ) ) {
 		return;
 	}
 
-	$rocket_config_class = new \WP_Rocket\Buffer\Config(
-		[
-			\'config_dir_path\' => \'' . rocket_get_constant( 'WP_ROCKET_CONFIG_PATH' ) . '\',
-		]
-	);
-
-	( new \WP_Rocket\Buffer\Cache(
-		new \WP_Rocket\Buffer\Tests(
-			$rocket_config_class
-		),
-		$rocket_config_class,
-		[
-			\'cache_dir_path\' => \'' . rocket_get_constant( 'WP_ROCKET_CACHE_PATH' ) . '\',
-		]
-	) )->maybe_init_process();' . "\n";
-	$buffer .= "} else {\n";
-	// Add a constant to provent include issue.
-	$buffer .= "\tdefine( 'WP_ROCKET_ADVANCED_CACHE_PROBLEM', true );\n";
-	$buffer .= "}\n";
-
-	/**
-	 * Filter the content of advanced-cache.php file.
-	 *
-	 * @since 2.1
-	 *
-	 * @param string $buffer The content that will be printed in advanced-cache.php.
-	 */
-	return (string) apply_filters( 'rocket_advanced_cache_file', $buffer );
-}
-
-/**
- * Creates advanced-cache.php file.
- *
- * @since 2.0
- */
-function rocket_generate_advanced_cache_file() {
 	static $done = false;
 
 	if ( rocket_get_constant( 'WP_ROCKET_IS_TESTING', false ) ) {
@@ -102,9 +36,14 @@ function rocket_generate_advanced_cache_file() {
 	}
 	$done = true;
 
+	if ( is_null( $advanced_cache ) ) {
+		$container      = apply_filters( 'rocket_container', null );
+		$advanced_cache = $container->get( 'advanced_cache' );
+	}
+
 	rocket_put_content(
 		rocket_get_constant( 'WP_CONTENT_DIR' ) . '/advanced-cache.php',
-		get_rocket_advanced_cache_file()
+		$advanced_cache->get_advanced_cache_content()
 	);
 }
 
@@ -240,7 +179,7 @@ function get_rocket_config_file() { // phpcs:ignore WordPress.NamingConventions.
 	 * @since 2.6.5
 	 *
 	 * @param array $config_files_path  Path of all config files.
-	 */
+	*/
 	$config_files_path = apply_filters( 'rocket_config_files_path', $config_files_path );
 
 	/**
@@ -250,7 +189,7 @@ function get_rocket_config_file() { // phpcs:ignore WordPress.NamingConventions.
 	 *
 	 * @param string $buffer The content that will be printed.
 	 * @param array $config_files_path  Names of all config files.
-	 */
+	*/
 	$buffer = apply_filters( 'rocket_config_file', $buffer, $config_files_path );
 	$buffer = preg_replace( '@array\s+\(@i', 'array(', $buffer );
 	$buffer = preg_replace( '@array\(\s+\)@i', 'array()', $buffer );
@@ -350,83 +289,6 @@ function rocket_init_config_dir() {
 }
 
 /**
- * Added or set the value of the WP_CACHE constant
- *
- * @since 2.0
- *
- * @param bool $turn_it_on The value of WP_CACHE constant.
- * @return void
- */
-function set_rocket_wp_cache_define( $turn_it_on ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
-	// If WP_CACHE is already define, return to get a coffee.
-	if ( ! rocket_valid_key() || ( $turn_it_on && defined( 'WP_CACHE' ) && WP_CACHE ) ) {
-		return;
-	}
-
-	if ( defined( 'IS_PRESSABLE' ) && IS_PRESSABLE ) {
-		return;
-	}
-
-	// Get path of the config file.
-	$config_file_path = rocket_find_wpconfig_path();
-	if ( ! $config_file_path ) {
-		return;
-	}
-
-	// Get content of the config file.
-	$config_file = file( $config_file_path );
-
-	// Get the value of WP_CACHE constant.
-	$turn_it_on = $turn_it_on ? 'true' : 'false';
-
-	/**
-	 * Filter allow to change the value of WP_CACHE constant
-	 *
-	 * @since 2.1
-	 *
-	 * @param string $turn_it_on The value of WP_CACHE constant.
-	 */
-	$turn_it_on = apply_filters( 'set_rocket_wp_cache_define', $turn_it_on ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
-
-	// Lets find out if the constant WP_CACHE is defined or not.
-	$is_wp_cache_exist = false;
-
-	// Get WP_CACHE constant define.
-	$constant = "define('WP_CACHE', $turn_it_on); // Added by WP Rocket\r\n";
-
-	foreach ( $config_file as &$line ) {
-		if ( ! preg_match( '/^define\(\s*\'([A-Z_]+)\',(.*)\)/', $line, $match ) ) {
-			continue;
-		}
-
-		if ( 'WP_CACHE' === $match[1] ) {
-			$is_wp_cache_exist = true;
-			$line              = $constant;
-		}
-	}
-	unset( $line );
-
-	// If the constant does not exist, create it.
-	if ( ! $is_wp_cache_exist ) {
-		array_shift( $config_file );
-		array_unshift( $config_file, "<?php\r\n", $constant );
-	}
-
-	// Insert the constant in wp-config.php file.
-	// @codingStandardsIgnoreStart
-	$handle = @fopen( $config_file_path, 'w' );
-	foreach ( $config_file as $line ) {
-		@fwrite( $handle, $line );
-	}
-
-	@fclose( $handle );
-	// @codingStandardsIgnoreEnd
-	// Update the writing permissions of wp-config.php file.
-	$chmod = rocket_get_filesystem_perms( 'file' );
-	rocket_direct_filesystem()->chmod( $config_file_path, $chmod );
-}
-
-/**
  * Delete all minify cache files.
  *
  * @since 3.5.3 Replaces glob.
@@ -507,10 +369,9 @@ function rocket_clean_minify( $extensions = [ 'js', 'css' ] ) {
 }
 
 /**
- * Delete all cache busting files
+ * Delete all cache busting files.
  *
  * @since 2.9
- * @author Remy Perona
  *
  * @param  string|array $extensions (default: array('js','css') File extensions to clean.
  * @return void
@@ -536,14 +397,14 @@ function rocket_clean_cache_busting( $extensions = [ 'js', 'css' ] ) {
 
 	try {
 		$dir = new RecursiveDirectoryIterator( $cache_busting_path, FilesystemIterator::SKIP_DOTS );
-	} catch ( \UnexpectedValueException $e ) {
+	} catch ( UnexpectedValueException $e ) {
 		// No logging yet.
 		return;
 	}
 
 	try {
 		$iterator = new RecursiveIteratorIterator( $dir, RecursiveIteratorIterator::CHILD_FIRST );
-	} catch ( \Exception $e ) {
+	} catch ( Exception $e ) {
 		// No logging yet.
 		return;
 	}
@@ -555,7 +416,7 @@ function rocket_clean_cache_busting( $extensions = [ 'js', 'css' ] ) {
 		 * @since 2.9
 		 *
 		 * @param string $ext File extensions to clean.
-		 */
+		*/
 		do_action( 'before_rocket_clean_busting', $ext ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 
 		try {
@@ -563,7 +424,7 @@ function rocket_clean_cache_busting( $extensions = [ 'js', 'css' ] ) {
 			foreach ( $files as $file ) {
 				rocket_direct_filesystem()->delete( $file[0] );
 			}
-		} catch ( \InvalidArgumentException $e ) {
+		} catch ( InvalidArgumentException $e ) {
 			// No logging yet.
 			return;
 		}
@@ -574,7 +435,7 @@ function rocket_clean_cache_busting( $extensions = [ 'js', 'css' ] ) {
 		 * @since 2.9
 		 *
 		 * @param string $ext File extensions to clean.
-		 */
+		*/
 		do_action( 'after_rocket_clean_cache_busting', $ext ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 	}
 
@@ -584,7 +445,7 @@ function rocket_clean_cache_busting( $extensions = [ 'js', 'css' ] ) {
 				rocket_direct_filesystem()->delete( $item );
 			}
 		}
-	} catch ( \UnexpectedValueException $e ) {
+	} catch ( UnexpectedValueException $e ) {
 		// Log the error.
 		Logger::debug(
 			'Cache Busting folder structure contains a directory we cannot recurse into.',
@@ -716,7 +577,7 @@ function rocket_clean_home( $lang = '' ) {
 	 * @param array     $root The root that will be returned.
 	 * @param string    $host The website host.
 	 * @param string    $path The website path.
-	 */
+	*/
 	$root = apply_filters( 'rocket_clean_home_root', $root, $parse_url['host'], $parse_url['path'] );
 
 	/**
@@ -726,7 +587,7 @@ function rocket_clean_home( $lang = '' ) {
 	 *
 	 * @param string $root The path of home cache file.
 	 * @param string $lang The current lang to purge.
-	 */
+	*/
 	do_action( 'before_rocket_clean_home', $root, $lang ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 
 	// Delete homepage.
@@ -768,7 +629,7 @@ function rocket_clean_home( $lang = '' ) {
 	 *
 	 * @param string $root The path of home cache file.
 	 * @param string $lang The current lang to purge.
-	 */
+	*/
 	do_action( 'after_rocket_clean_home', $root, $lang ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 }
 
@@ -790,7 +651,7 @@ function rocket_clean_home_feeds() {
 	 *
 	 * @since 2.7
 	 * @param array     $urls The urls of the home feeds.
-	 */
+	*/
 	$urls = apply_filters( 'rocket_clean_home_feeds', $urls );
 
 	/**
@@ -799,7 +660,7 @@ function rocket_clean_home_feeds() {
 	 * @since 2.7
 	 *
 	 * @param array $urls The urls of the home feeds.
-	 */
+	*/
 	do_action( 'before_rocket_clean_home_feeds', $urls ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 
 	rocket_clean_files( $urls );
@@ -810,7 +671,7 @@ function rocket_clean_home_feeds() {
 	 * @since 2.7
 	 *
 	 * @param array $urls The urls of the home feeds.
-	 */
+	*/
 	do_action( 'after_rocket_clean_home_feeds', $urls ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 }
 
@@ -944,7 +805,7 @@ function rocket_clean_term( $term_id, $taxonomy_slug ) {
 	 * @param obj    $term       The term object.
 	 * @param array  $purge_urls URLs cache files to remove.
 	 * @param string $lang       The term language.
-	 */
+	*/
 	do_action( 'before_rocket_clean_term', $term, $purge_urls, $lang ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 
 	/**
@@ -953,7 +814,7 @@ function rocket_clean_term( $term_id, $taxonomy_slug ) {
 	 * @since 2.6.8
 	 * @param array $purge_urls List of URLs cache files to remove.
 	 * @param obj   $term       The term object.
-	 */
+	*/
 	$purge_urls = apply_filters( 'rocket_term_purge_urls', $purge_urls, $term );
 
 	// Purge all files.
@@ -969,7 +830,7 @@ function rocket_clean_term( $term_id, $taxonomy_slug ) {
 	 * @param obj    $term       The term object.
 	 * @param array  $purge_urls URLs cache files to remove.
 	 * @param string $lang       The term language.
-	 */
+	*/
 	do_action( 'after_rocket_clean_term', $term, $purge_urls, $lang ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 }
 
@@ -1014,7 +875,7 @@ function rocket_clean_user( $user_id, $lang = '' ) {
 		 *
 		 * @param int     $user_id  The path of home cache file.
 		 * @param string  $lang     The language code.
-		 */
+		*/
 		do_action( 'before_rocket_clean_user', $user_id, $lang ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 
 		// Delete cache domain files.
@@ -1032,7 +893,7 @@ function rocket_clean_user( $user_id, $lang = '' ) {
 		 *
 		 * @param int     $user_id  The path of home cache file.
 		 * @param string  $lang     The language code.
-		 */
+		*/
 		do_action( 'after_rocket_clean_user', $user_id, $lang ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 	}
 }
@@ -1049,7 +910,7 @@ function rocket_clean_cache_dir() {
 	 * Fires before deleting all caching files in the cache folder
 	 *
 	 * @since 2.6.8
-	 */
+	*/
 	do_action( 'before_rocket_clean_cache_dir' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 
 	// Delete all caching files.
@@ -1064,7 +925,7 @@ function rocket_clean_cache_dir() {
 	 * Fires after deleting all caching files in the cache folder
 	 *
 	 * @since 2.6.8
-	 */
+	*/
 	do_action( 'after_rocket_clean_cache_dir' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals
 }
 
@@ -1073,6 +934,7 @@ function rocket_clean_cache_dir() {
  *
  * @since 3.5.3 Replaces glob and optimizes.
  * @since 1.0
+ * @since 3.5.3 Bails if given dir should be preserved; replaces glob; optimizes.
  *
  * @param string                    $dir              File/Directory to delete.
  * @param array                     $dirs_to_preserve Optional. Dirs that should not be deleted.
@@ -1345,33 +1207,27 @@ function rocket_get_filesystem_perms( $type ) {
 }
 
 /**
- * Try to find the correct wp-config.php file, support one level up in filetree
+ * Gets Directory files matches regex.
  *
- * @since 2.1
+ * @since 3.6.3
+ * @access private
  *
- * @return string|bool The path of wp-config.php file or false if not found
+ * @param string $dir   Directory to search for files inside it.
+ * @param string $regex Regular expression for files need to be searched for.
+ *
+ * @return array|RegexIterator List of files matches this regular expression.
  */
-function rocket_find_wpconfig_path() {
-	/**
-	 * Filter the wp-config's filename
-	 *
-	 * @since 2.11
-	 * @author Maxime Culea
-	 *
-	 * @param string $filename The WP Config filename, without the extension.
-	 */
-	$config_file_name = apply_filters( 'rocket_wp_config_name', 'wp-config' );
-	$config_file      = ABSPATH . $config_file_name . '.php';
-	$config_file_alt  = dirname( ABSPATH ) . '/' . $config_file_name . '.php';
+function _rocket_get_dir_files_by_regex( $dir, $regex ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
+	try {
+		$iterator = new IteratorIterator(
+			new FilesystemIterator( $dir )
+		);
 
-	if ( rocket_direct_filesystem()->exists( $config_file ) && rocket_direct_filesystem()->is_writable( $config_file ) ) {
-		return $config_file;
-	} elseif ( rocket_direct_filesystem()->exists( $config_file_alt ) && rocket_direct_filesystem()->is_writable( $config_file_alt ) && ! rocket_direct_filesystem()->exists( dirname( ABSPATH ) . '/wp-settings.php' ) ) {
-		return $config_file_alt;
+		return new RegexIterator( $iterator, $regex );
+	} catch ( Exception $e ) {
+		return [];
 	}
 
-	// No writable file found.
-	return false;
 }
 
 /**
@@ -1526,4 +1382,51 @@ function _rocket_is_windows_fs( $hard_reset = false ) { // phpcs:ignore WordPres
  */
 function _rocket_get_wp_rocket_cache_path() { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
 	return _rocket_normalize_path( rocket_get_constant( 'WP_ROCKET_CACHE_PATH' ) );
+}
+
+/**
+ * Gets .php files in a directory as an array of SplFileInfo objects.
+ *
+ * @since 3.6.3
+ *
+ * @param string $dir_path Directory to check.
+ *
+ * @return array .php files in the directory. [...SplFileInfo]
+ */
+function _rocket_get_php_files_in_dir( $dir_path ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
+	try {
+		$config_dir = new FilesystemIterator( (string) $dir_path );
+	} catch ( Exception $e ) {
+		return [];
+	}
+	$files = [];
+
+	foreach ( $config_dir as $file ) {
+		if ( $file->isFile() && 'php' === $file->getExtension() ) {
+			$files[] = $file;
+		}
+	}
+
+	return $files;
+}
+
+/**
+ * Get recursive files matched by regex.
+ *
+ * @since 3.6.3
+ *
+ * @param string $regex Regular Expression to be applied.
+ *
+ * @return array|RegexIterator List of files which match the regular expression (SplFileInfo).
+ */
+function _rocket_get_recursive_dir_files_by_regex( $regex ) { // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedFunctionFound
+	try {
+		$cache_path = _rocket_get_wp_rocket_cache_path();
+		$iterator   = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator( $cache_path, FilesystemIterator::SKIP_DOTS )
+		);
+		return new RegexIterator( $iterator, $regex, RecursiveRegexIterator::MATCH );
+	} catch ( Exception $e ) {
+		return [];
+	}
 }
