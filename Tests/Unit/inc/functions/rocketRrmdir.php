@@ -32,6 +32,11 @@ class Test_RocketRrmdir extends FilesystemTestCase {
 
 		$this->dumpResults = isset( $expected['dump_results'] );
 		$this->checkEntriesDeleted( $expected['removed'] );
-		$this->checkShouldNotDeleteEntries();
+		if ( ! empty( $expected['preserved'] ) ) {
+			foreach ( $expected['preserved'] as $item ) {
+				$this->assertTrue( $this->filesystem->exists( $item ) );
+			}
+		}
+
 	}
 }
