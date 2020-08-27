@@ -52,7 +52,6 @@ return [
 
 					'example.org#fr' => [
 						'index.html_gzip' => '',
-						'francais.html'   => ''
 					],
 				],
 			],
@@ -60,7 +59,7 @@ return [
 	],
 
 	'test_data' => [
-		'shouldRemoveMainDomainFilesWhenNoLangGiven'   => [
+		'shouldRemoveMainDomainFilesWhenNoLangGiven' => [
 			'i18n'     => [
 				'lang' => ''
 			],
@@ -72,8 +71,11 @@ return [
 					'vfs://public/wp-content/cache/wp-rocket/example.org/index-test.html'                => null,
 					'vfs://public/wp-content/cache/wp-rocket/example.org/.mobile-active'                 => null,
 					'vfs://public/wp-content/cache/wp-rocket/example.org/.no-webp'                       => null,
+					'vfs://public/wp-content/cache/wp-rocket/example.org/page/'                          => null,
+					'vfs://public/wp-content/cache/wp-rocket/example.org/page/1/'                        => null,
 					'vfs://public/wp-content/cache/wp-rocket/example.org/page/1/index.html_gzip'         => null,
 					'vfs://public/wp-content/cache/wp-rocket/example.org/page/1/index.html'              => null,
+					'vfs://public/wp-content/cache/wp-rocket/example.org/page/2/'                        => null,
 					'vfs://public/wp-content/cache/wp-rocket/example.org/page/2/index.html_gzip'         => null,
 					'vfs://public/wp-content/cache/wp-rocket/example.org/page/2/index.html'              => null,
 					'vfs://public/wp-content/cache/wp-rocket/example.org-wpmedia-123456/index.html_gzip' => null,
@@ -109,16 +111,16 @@ return [
 				],
 			],
 		],
-		'shouldRemoveLangMainDomainFilesWhenLangGiven' => [
-			'i18n'     => [
-				'lang' => 'fr'
-			],
-			'home_url' => 'http://example.org',
-			'expected' => [
-				'cleaned' => [
-					'vfs://public/wp-content/cache/wp-rocket/example.org#fr/index.html_gzip' => null,
-				],
-			],
-		],
+//		'shouldRemoveLangMainDomainFilesWhenLangGiven' => [
+//			'i18n'     => [
+//				'lang' => 'fr'
+//			],
+//			'home_url' => 'http://example.org',
+//			'expected' => [
+//				'cleaned' => [
+//					'vfs://public/wp-content/cache/wp-rocket/example.org#fr/index.html_gzip' => null,
+//				],
+//			],
+//		],
 	],
 ];

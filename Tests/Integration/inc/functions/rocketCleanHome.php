@@ -24,14 +24,5 @@ class Test_RocketCleanHome extends FilesystemTestCase {
 
 		$this->checkEntriesDeleted( $expected['cleaned'] );
 		$this->checkShouldNotDeleteEntries();
-
-//		foreach ($expected['removed_files'] as $removed_file) {
-//			$this->assertFalse( $this->filesystem->exists( $this->config['vfs_dir'].$removed_file ) );
-//		}
-//
-//		foreach ($expected['not_removed_files'] as $not_removed_file) {
-//			$this->assertTrue( $this->filesystem->exists( $this->config['vfs_dir'].$not_removed_file ) );
-//		}
 	}
-
 }
